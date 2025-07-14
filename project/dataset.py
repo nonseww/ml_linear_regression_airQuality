@@ -58,7 +58,8 @@ def drop_missing_blocks(df, name):
 
 # Check multicollinearity via VIF (Variance Inflation Factor)
 def check_multicollinearity(df):
-    numeric_df = df.select_dtypes(include=['number']).copy()
+    print(df.dtypes)
+    numeric_df = df.drop(columns=['PT08.S1(CO)', 'Date', 'Time']).select_dtypes(include=['number']).copy()
     numeric_df.dropna(inplace=True)
     features = numeric_df.columns.tolist()
     cur_features = numeric_df[features].copy()
@@ -71,16 +72,19 @@ def check_multicollinearity(df):
 
 
 # Explore df and return features that should be used
-def analyzing_df(df):
+def get_bad_features(df):
     generate_correlation_matrix(df)
     check_multicollinearity(df)
-    pass
+    # NOx(GT) is 5.280276 but let's keep it
+    return []
 
 
 # Analyzing df and cleat it from the missing values
 def clear_df(df):
-    # analizing df for knowing which features should be used
-    analyzing_df(df)
+    # convert into correctly type
+    df['T'] = pd.to_numeric(df['T'], errors='coerce')
+    df['RH'] = pd.to_numeric(df['RH'], errors='coerce')
+    df['AH'] = pd.to_numeric(df['AH'], errors='coerce')
 
     df.replace(-200, np.nan, inplace=True)  # create the NaN instead of -200
 
@@ -115,6 +119,11 @@ def clear_df(df):
     check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
     # works with PT08.S1(CO):
+
+
+    # analizing df for knowing which features should be used and drop
+    get_bad_features(df)
+    # df.drop(columns=get_bad_features(df), inplace=True)
     return df
 
 
