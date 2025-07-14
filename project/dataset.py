@@ -17,9 +17,11 @@ def load_dataset(name):
     return training_df
 
 
-def show_missing_values(df):
+def show_missing_values(df, save_csv):
     missing_values = df.isnull().sum()
-    missing_values.to_csv('../data/missing_values.csv', header=['missing_values'])
+    print(missing_values)
+    if save_csv:
+        missing_values.to_csv('../data/missing_values.csv', header=['missing_values'])
 
 
 # Function for analyze the missing values
@@ -45,7 +47,7 @@ def check_missing_values_by_time(df, col, period, show_plot, save_plot, path=Non
     if save_plot:
         if path is None:
             now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            path = f'../data/missing_{col}_{period}_{now}.png'
+            path = f'../data/missing_values_plots/missing_{col}_{period}_{now}.png'
         fig.savefig(path)
     plt.close(fig)
 
@@ -76,7 +78,7 @@ def check_multicollinearity(df):
     print(vif)
 
 
-# Explore df and return features that should be used
+# Explores df and returns features that should be used
 def get_bad_features(df):
     generate_correlation_matrix(df)
     check_multicollinearity(df)
@@ -84,7 +86,7 @@ def get_bad_features(df):
     return []
 
 
-# Analyzing df and cleat it from the missing values
+# Analyzes df and clears it from the missing values
 def clear_df(df):
     # convert into correctly type
     df['T'] = pd.to_numeric(df['T'], errors='coerce')
@@ -94,7 +96,7 @@ def clear_df(df):
     df.replace(-200, np.nan, inplace=True)  # create the NaN instead of -200
 
     # get list of the missing values
-    show_missing_values(df)
+    show_missing_values(df, True)
 
     # T, RH and AH are missed at all => drop it
     df.drop(columns=['T', 'RH', 'AH'], inplace=True)
@@ -102,7 +104,7 @@ def clear_df(df):
     # NMHC(GT): 8557 out of 9471 rows => drop it, it's unusable
     df.drop(columns=['NMHC(GT)'], inplace=True)
 
-    # works with NOx(GT): 1753 missings
+    # work with NOx(GT): 1753 missings
     check_missing_values_by_time(df, 'NOx(GT)', 'D', False, False)
 
     # NOx(GT) has random missingness, that's okay, use interpolation
@@ -115,7 +117,7 @@ def clear_df(df):
     # check again
     check_missing_values_by_time(df, 'NOx(GT)', 'D', False, False)
 
-    # works with NO2(GT): 1756 missings
+    # work with NO2(GT): 1756 missings
     check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
     # NO2(GT) has missing values from 0.001 to 4 missing valuer per day, but it's too noisy so use
@@ -128,14 +130,16 @@ def clear_df(df):
 
     check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
-    # works with PT08.S1(CO): 480 missings
-    check_missing_values_by_time(df, 'PT08.S1(CO)', 'D', False, True)
+    # work with PT08.S1(CO): 480 missings
+    check_missing_values_by_time(df, 'PT08.S1(CO)', 'D', False, False)
 
     # because CO is target, drop NaN rows
     df.dropna(subset=['PT08.S1(CO)'], inplace=True)
 
-    # works with PT08.S2(NMHC): 480 missings
-    check_missing_values_by_time(df, 'PT08.S2(NMHC)', 'D', True, True)
+    # re-check missing values
+    show_missing_values(df, False)
+
+    # it's zero at all => good
 
     # analyzing df for knowing which features should be used and drop
     # get_bad_features(df)
