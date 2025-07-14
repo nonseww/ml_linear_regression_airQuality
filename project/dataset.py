@@ -21,23 +21,26 @@ def check_missing_values_by_time(df, col, period, show_plot, save_plot, path=Non
         df['Date'] + ' ' + df['Time'],
         format='%d/%m/%Y %H.%M.%S',
         errors='coerce')
+
     valid_mask = ~datetime_index.isna()
     df_valid = df.loc[valid_mask]
     datetime_index = datetime_index[valid_mask]
+
     missing_over_time = df_valid[col].isnull().astype(int)
     missing_over_time.index = datetime_index
+
+    fig, ax = plt.subplots(figsize=(12, 4))
     missing_over_time.resample(period).sum().plot(
-        title='Missing {} by {}'.format(col, {'h': 'Hour', 'D': 'Day', 'W': 'Week', 'M': 'Month'}[period]),
-        figsize=(12, 4))
+        ax=ax,
+        title='Missing {} by {}'.format(col, {'h': 'Hour', 'D': 'Day', 'W': 'Week', 'M': 'Month'}[period]))
     if show_plot:
         plt.show()
     if save_plot:
-        save_path = path
         if path is None:
             now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            save_path = f'../data/missing_{col}_{period}_{now}.png'
-        plt.savefig(save_path)
-        plt.close()
+            path = f'../data/missing_{col}_{period}_{now}.png'
+        fig.savefig(path)
+    plt.close(fig)
 
 
 # Drop rows where {column name} values is missing in long period
