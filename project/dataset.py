@@ -1,5 +1,4 @@
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
@@ -67,7 +66,7 @@ def drop_missing_blocks(df, name):
 # Check multicollinearity via VIF (Variance Inflation Factor)
 def check_multicollinearity(df):
     print(df.dtypes)
-    numeric_df = df.drop(columns=['PT08.S1(CO)', 'Date', 'Time']).select_dtypes(include=['number']).copy()
+    numeric_df = df.drop(columns=['CO(GT)', 'Date', 'Time']).select_dtypes(include=['number']).copy()
     numeric_df.dropna(inplace=True)
     features = numeric_df.columns.tolist()
     cur_features = numeric_df[features].copy()
@@ -76,17 +75,15 @@ def check_multicollinearity(df):
     vif["Feature"] = cur_features.columns
     vif["VIF"] = [variance_inflation_factor(cur_features.values, i) for i in range(cur_features.shape[1])]
     vif.to_csv('../data/vif_results.txt', sep='\t', index=False)
-    print(vif)
+    print('VIF result\n', vif)
 
 
 # Explores df and returns features that should be used
 def get_bad_features(df):
+    check_multicollinearity(df)
     generate_correlation_matrix(df)
-    print(df['C6H6(GT)'].isna().sum())
-    print(len(df['C6H6(GT)']))
-    # check_multicollinearity(df)
-    # NOx(GT) is 5.280276 but let's keep it
-    return []
+    # maybe some dimensionality reduction methods in the future
+    return ['PT08.S1(CO)', 'C6H6(GT)', 'PT08.S2(NMHC)', 'PT08.S4(NO2)', 'PT08.S5(O3)']
 
 
 # Analyzes df and clears it from the missing values
@@ -162,9 +159,9 @@ def clear_df(df):
     check_missing_values_by_time(df, 'PT08.S4(NO2)', 'D', False, False)
 
     # works with PT08.S5(O3): 49 missings
-    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', True, True)
+    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', False, False)
     df['PT08.S5(O3)'] = df['PT08.S5(O3)'].interpolate(limit=5)
-    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', True, False)
+    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', False, False)
 
     # re-check missing values
     show_missing_values(df, False)
@@ -176,8 +173,8 @@ def clear_df(df):
     print('check {}'.format(df.select_dtypes(include='number').std()))
 
     # analyzing df for knowing which features should be used and drop
-    get_bad_features(df)
-    # df.drop(columns=get_bad_features(df), inplace=True)
+    df.drop(columns=get_bad_features(df), inplace=True)
+    generate_correlation_matrix(df)
     return df
 
 
@@ -185,4 +182,4 @@ def clear_df(df):
 def generate_correlation_matrix(df):
     pd.set_option('display.max_columns', None)
     correlation_matrix = df.corr(numeric_only=True)
-    print(correlation_matrix)
+    print('Correlation matrix:\n', correlation_matrix)
