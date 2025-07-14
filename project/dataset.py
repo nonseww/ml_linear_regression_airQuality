@@ -128,11 +128,43 @@ def clear_df(df):
 
     check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
-    # work with PT08.S1(CO): 480 missings
+    # work with CO(GT): 526 missings
+    check_missing_values_by_time(df, 'CO(GT)', 'D', False, False)
+
+    # because CO(GT) is target, drop NaN rows
+    df.dropna(subset=['CO(GT)'], inplace=True)
+
+    # work with PT08.S1(CO): 329 missings
+    check_missing_values_by_time(df, 'PT08.S1(CO)', 'D', False, False)
+    df['PT08.S1(CO)'] = df['PT08.S1(CO)'].interpolate(limit=5, method='linear')
+    df = drop_missing_blocks(df, 'PT08.S1(CO)')
+    df.dropna(subset=['PT08.S1(CO)'], inplace=True)
     check_missing_values_by_time(df, 'PT08.S1(CO)', 'D', False, False)
 
-    # because CO is target, drop NaN rows
-    df.dropna(subset=['PT08.S1(CO)'], inplace=True)
+    # works with C6H6(GT): 49 missings
+    check_missing_values_by_time(df, 'C6H6(GT)', 'D', False, False)
+    df['C6H6(GT)'] = df['C6H6(GT)'].interpolate(limit=5)
+    check_missing_values_by_time(df, 'C6H6(GT)', 'D', False, False)
+
+    # works with PT08.S2(NMHC): 49 missings
+    check_missing_values_by_time(df, 'PT08.S2(NMHC)', 'D', False, False)
+    df['PT08.S2(NMHC)'] = df['PT08.S2(NMHC)'].interpolate(limit=5)
+    check_missing_values_by_time(df, 'PT08.S2(NMHC)', 'D', False, False)
+
+    # works with PT08.S3(NOx): 49 missings
+    check_missing_values_by_time(df, 'PT08.S3(NOx)', 'D', False, False)
+    df['PT08.S3(NOx)'] = df['PT08.S3(NOx)'].interpolate(limit=5)
+    check_missing_values_by_time(df, 'PT08.S3(NOx)', 'D', False, False)
+
+    # works with PT08.S4(NO2): 49 missings
+    check_missing_values_by_time(df, 'PT08.S4(NO2)', 'D', False, False)
+    df['PT08.S4(NO2)'] = df['PT08.S4(NO2)'].interpolate(limit=5)
+    check_missing_values_by_time(df, 'PT08.S4(NO2)', 'D', False, False)
+
+    # works with PT08.S5(O3): 49 missings
+    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', True, True)
+    df['PT08.S5(O3)'] = df['PT08.S5(O3)'].interpolate(limit=5)
+    check_missing_values_by_time(df, 'PT08.S5(O3)', 'D', True, False)
 
     # re-check missing values
     show_missing_values(df, False)
