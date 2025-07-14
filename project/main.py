@@ -1,4 +1,6 @@
-from dataset import load_dataset
+from dataset import load_dataset, generate_correlation_matrix
 
 if __name__ == '__main__':
-    load_dataset('AirQualityUCI.csv')
+    df = load_dataset('AirQualityUCI.csv')
+    generate_correlation_matrix(df)
+
