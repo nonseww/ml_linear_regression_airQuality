@@ -17,6 +17,11 @@ def load_dataset(name):
     return training_df
 
 
+def show_missing_values(df):
+    missing_values = df.isnull().sum()
+    missing_values.to_csv('../data/missing_values.csv', header=['missing_values'])
+
+
 # Function for analyze the missing values
 def check_missing_values_by_time(df, col, period, show_plot, save_plot, path=None):
     datetime_index = pd.to_datetime(
@@ -88,7 +93,12 @@ def clear_df(df):
 
     df.replace(-200, np.nan, inplace=True)  # create the NaN instead of -200
 
-    # print(df.isnull().sum())  # Debug: check the count of the missing values
+    # get list of the missing values
+    show_missing_values(df)
+
+    # T, RH and AH are missed at all => drop it
+    df.drop(columns=['T', 'RH', 'AH'], inplace=True)
+
     # NMHC(GT): 8557 out of 9471 rows => drop it, it's unusable
     df.drop(columns=['NMHC(GT)'], inplace=True)
 
@@ -118,11 +128,17 @@ def clear_df(df):
 
     check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
-    # works with PT08.S1(CO):
+    # works with PT08.S1(CO): 480 missings
+    check_missing_values_by_time(df, 'PT08.S1(CO)', 'D', False, True)
 
+    # because CO is target, drop NaN rows
+    df.dropna(subset=['PT08.S1(CO)'], inplace=True)
 
-    # analizing df for knowing which features should be used and drop
-    get_bad_features(df)
+    # works with PT08.S2(NMHC): 480 missings
+    check_missing_values_by_time(df, 'PT08.S2(NMHC)', 'D', True, True)
+
+    # analyzing df for knowing which features should be used and drop
+    # get_bad_features(df)
     # df.drop(columns=get_bad_features(df), inplace=True)
     return df
 
