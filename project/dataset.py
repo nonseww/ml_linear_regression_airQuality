@@ -3,6 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 
 
 # The function loads dataset
@@ -54,8 +56,32 @@ def drop_missing_blocks(df, name):
     return df
 
 
+# Check multicollinearity via VIF (Variance Inflation Factor)
+def check_multicollinearity(df):
+    numeric_df = df.select_dtypes(include=['number']).copy()
+    numeric_df.dropna(inplace=True)
+    features = numeric_df.columns.tolist()
+    cur_features = numeric_df[features].copy()
+    cur_features = add_constant(cur_features)
+    vif = pd.DataFrame()
+    vif["Feature"] = cur_features.columns
+    vif["VIF"] = [variance_inflation_factor(cur_features.values, i) for i in range(cur_features.shape[1])]
+    vif.to_csv('../data/vif_results.txt', sep='\t', index=False)
+    print(vif)
+
+
+# Explore df and return features that should be used
+def analyzing_df(df):
+    generate_correlation_matrix(df)
+    check_multicollinearity(df)
+    pass
+
+
 # Analyzing df and cleat it from the missing values
 def clear_df(df):
+    # analizing df for knowing which features should be used
+    analyzing_df(df)
+
     df.replace(-200, np.nan, inplace=True)  # create the NaN instead of -200
 
     # print(df.isnull().sum())  # Debug: check the count of the missing values
@@ -73,10 +99,10 @@ def clear_df(df):
     df.dropna(subset=['NOx(GT)'], inplace=True)
 
     # check again
-    check_missing_values_by_time(df, 'NOx(GT)', 'D', False, True)
+    check_missing_values_by_time(df, 'NOx(GT)', 'D', False, False)
 
     # works with NO2(GT): 1756 missings
-    check_missing_values_by_time(df, 'NO2(GT)', 'D', True, True)
+    check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
 
     # NO2(GT) has missing values from 0.001 to 4 missing valuer per day, but it's too noisy so use
     # interpolation carefully
@@ -86,7 +112,9 @@ def clear_df(df):
     # it's only 24, so drop it
     df.dropna(subset=['NO2(GT)'], inplace=True)
 
-    check_missing_values_by_time(df, 'NO2(GT)', 'D', True, False)
+    check_missing_values_by_time(df, 'NO2(GT)', 'D', False, False)
+
+    # works with PT08.S1(CO):
     return df
 
 
