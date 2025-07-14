@@ -9,7 +9,7 @@ from statsmodels.tools.tools import add_constant
 
 # The function loads dataset
 def load_dataset(name):
-    dataset = pd.read_csv("../sources/{}".format(name), sep=';', usecols=lambda col: "Unnamed" not in col)
+    dataset = pd.read_csv("../sources/{}".format(name), sep=';', decimal=',', usecols=lambda col: "Unnamed" not in col)
     training_df = dataset.loc[:, dataset.columns.tolist()]
     print('Read dataset completed successfully')
     print('Total numbers of rows: {0}\n\n'.format(len(training_df.index)))
@@ -19,7 +19,8 @@ def load_dataset(name):
 
 def show_missing_values(df, save_csv):
     missing_values = df.isnull().sum()
-    print(missing_values)
+    print('Missing values: \n', missing_values)
+    print('C6H6:', df['C6H6(GT)'].isna().sum())
     if save_csv:
         missing_values.to_csv('../data/missing_values.csv', header=['missing_values'])
 
@@ -81,18 +82,15 @@ def check_multicollinearity(df):
 # Explores df and returns features that should be used
 def get_bad_features(df):
     generate_correlation_matrix(df)
-    check_multicollinearity(df)
+    print(df['C6H6(GT)'].isna().sum())
+    print(len(df['C6H6(GT)']))
+    # check_multicollinearity(df)
     # NOx(GT) is 5.280276 but let's keep it
     return []
 
 
 # Analyzes df and clears it from the missing values
 def clear_df(df):
-    # convert into correctly type
-    df['T'] = pd.to_numeric(df['T'], errors='coerce')
-    df['RH'] = pd.to_numeric(df['RH'], errors='coerce')
-    df['AH'] = pd.to_numeric(df['AH'], errors='coerce')
-
     df.replace(-200, np.nan, inplace=True)  # create the NaN instead of -200
 
     # get list of the missing values
@@ -141,8 +139,12 @@ def clear_df(df):
 
     # it's zero at all => good
 
+    print('There are {} rows now'.format(len(df)))
+    print('There are {} unique values'.format(df.nunique()))
+    print('check {}'.format(df.select_dtypes(include='number').std()))
+
     # analyzing df for knowing which features should be used and drop
-    # get_bad_features(df)
+    get_bad_features(df)
     # df.drop(columns=get_bad_features(df), inplace=True)
     return df
 
