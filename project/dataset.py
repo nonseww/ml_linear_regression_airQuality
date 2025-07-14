@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime
 
 
 # The function loads dataset
@@ -14,7 +15,7 @@ def load_dataset(name):
     return training_df
 
 
-# Function for analyze the missing values by using graphic
+# Function for analyze the missing values
 def check_missing_values_by_time(df, col, period, show_plot, save_plot, path=None):
     datetime_index = pd.to_datetime(
         df['Date'] + ' ' + df['Time'],
@@ -31,7 +32,10 @@ def check_missing_values_by_time(df, col, period, show_plot, save_plot, path=Non
     if show_plot:
         plt.show()
     if save_plot:
-        save_path = path if path is not None else f'../data/missing_{col}_{period}.png'
+        save_path = path
+        if path is None:
+            now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            save_path = f'../data/missing_{col}_{period}_{now}.png'
         plt.savefig(save_path)
         plt.close()
 
