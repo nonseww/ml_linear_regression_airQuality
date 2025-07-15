@@ -15,7 +15,16 @@ def build_model(learning_rate, num_features):
 
 # Trains the given model
 def train_model(model, features, label, epochs, batch_size):
-    pass
+    history = model.fit(x=features,
+                        y=label,
+                        batch_size=batch_size,
+                        epochs=epochs)
+    trained_weight = model.get_weights()[0]  # weights matrix
+    trained_bias = model.get_weights()[1]  # bias vector
+    epochs = history.epoch
+    hist = pd.DataFrame(history.history)  # converts the history dict into a pandas DataFrame
+    rmse = hist["root_mean_squared_error"]
+    return trained_weight, trained_bias, epochs, rmse
 
 
 # Generates a formatted string summary about th trained linear model
