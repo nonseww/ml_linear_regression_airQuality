@@ -36,4 +36,8 @@ def predict_fare(model, df, features, label, batch_size=50):
 
 # Prints info about prediction
 def show_predictions(output):
-    pass
+    header = "-" * 80
+    banner = header + "\n" + "|" + "PREDICTIONS".center(78) + "|" + "\n" + header
+    print(banner)
+    print(output)
+    return
