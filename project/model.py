@@ -48,6 +48,7 @@ def model_info(feature_names, label_name, model_output):
     return banner + nl + info + nl + equation
 
 
+# Standardize features (scaling)
 def get_standardized_features(features):
     scaler = StandardScaler()
     return scaler.fit_transform(features)
