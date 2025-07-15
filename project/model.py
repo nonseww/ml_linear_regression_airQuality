@@ -49,4 +49,14 @@ def model_info(feature_names, label_name, model_output):
 
 # Core of the model: all functions are called from here
 def run_experiment(df, feature_names, label_name, learning_rate, epochs, batch_size):
-    pass
+    print("INFO: start training the model with features={} and label={}\n".format(feature_names, label_name))
+    num_features = len(feature_names)
+    model = build_model(learning_rate, num_features)
+    features = df.loc[:, feature_names].values
+    label = df[label_name].values
+    model_result = train_model(model, features, label, epochs, batch_size)
+
+    print('\nSUCCESS: training complete\n')
+    print('{}'.format(model_info(feature_names, label_name, model_result)))
+
+    return model
