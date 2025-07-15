@@ -1,6 +1,6 @@
 import pandas as pd
 import keras
-from sklearn.preprocessing import StandardScaler
+from utils import get_standardized_features
 
 
 # Creates and compiles a linear regression model
@@ -46,12 +46,6 @@ def model_info(feature_names, label_name, model_output):
     equation += "{:.3f}\n".format(bias[0])
 
     return banner + nl + info + nl + equation
-
-
-# Standardize features (scaling)
-def get_standardized_features(features):
-    scaler = StandardScaler()
-    return scaler.fit_transform(features)
 
 
 # Core of the model: all functions are called from here

@@ -1,11 +1,12 @@
 from dataset import load_dataset
 from model import run_training
 from save_load import save_model, load_model
+from prediction import predict_CO, show_predictions
 
 if __name__ == '__main__':
     df = load_dataset('AirQualityUCI.csv')
-    # need_train = False
-    need_train = True
+    need_train = False
+    # need_train = True
     if need_train:
         # one-feature
         learning_rate_1 = 0.001
@@ -38,5 +39,7 @@ if __name__ == '__main__':
         save_model(model_3, "linear_regression_airQuality_3.keras")
     else:
         model = load_model("linear_regression_airQuality_3.keras")
-
-
+        features = [col for col in df.columns if col not in ['Date', 'Time', 'CO(GT)']]
+        label = "CO(GT)"
+        output = predict_CO(model, df, features, label)
+        show_predictions(output)
