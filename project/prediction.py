@@ -9,7 +9,9 @@ def format_currency(x):
 
 # Chooses a random group of data from the df
 def build_batch(df, batch_size):
-    pass
+    batch = df.sample(n=batch_size).copy()
+    batch.set_index(np.arange(batch_size), inplace=True)
+    return batch
 
 
 # Runs trained model on a random batch of data
