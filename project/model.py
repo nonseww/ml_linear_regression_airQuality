@@ -4,7 +4,13 @@ import keras
 
 # Creates and compiles a linear regression model
 def build_model(learning_rate, num_features):
-    pass
+    inputs = keras.Input(shape=(num_features,))
+    outputs = keras.layers.Dense(units=1)(inputs)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    model.compile(optimizer=keras.optimizers.RMSprop(learning_rate=learning_rate),
+                  loss="mean_squared_error",
+                  metrics=[keras.metrics.RootMeanSquaredError()])
+    return model
 
 
 # Trains the given model
