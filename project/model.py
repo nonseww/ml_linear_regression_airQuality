@@ -27,9 +27,24 @@ def train_model(model, features, label, epochs, batch_size):
     return trained_weight, trained_bias, epochs, rmse
 
 
-# Generates a formatted string summary about th trained linear model
+# Generates a formatted string summary about the trained linear model
 def model_info(feature_names, label_name, model_output):
-    pass
+    weights = model_output[0]
+    bias = model_output[1]
+    nl = "\n"
+    header = "-" * 80
+    banner = header + nl + "|" + "MODEL INFO".center(78) + "|" + nl + header
+    info = ""
+    equation = label_name + " = "
+
+    for index, feature in enumerate(feature_names):
+        info += "Weight for feature[{}]: {:.3f}\n".format(feature, weights[index][0])
+        equation += "{:.3f}\n".format(bias[0])
+
+    info += "Bias: {:.3f}\n".format(bias[0])
+    equation += "{:.3f}\n".format(bias[0])
+
+    return banner + nl + info + nl + equation
 
 
 # Core of the model: all functions are called from here
