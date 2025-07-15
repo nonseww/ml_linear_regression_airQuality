@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
+from utils import load_scaler
 
 
 # Formats numbers
 def format_currency(x):
-    return "${:.2f}".format(x)
+    return "{:.2f}".format(x)
 
 
 # Chooses a random group of data from the df
@@ -15,9 +16,10 @@ def build_batch(df, batch_size):
 
 
 # Runs trained model on a random batch of data
-def predict_fare(model, df, features, label, batch_size=50):
+def predict_CO(model, df, features, label, batch_size=50):
     batch = build_batch(df, batch_size)
-    predicted_values = model.predict_on_batch(x=batch.loc[:, features].values)
+    batch_features = load_scaler('scaler.save').transform(batch[features])
+    predicted_values = model.predict_on_batch(x=batch_features)
     data = {"PREDICTED_CO": [], "OBSERVED_CO": [], "L1_LOSS": [], features[0]: [], features[1]: [], features[2]: []}
 
     for i in range(batch_size):
