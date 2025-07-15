@@ -1,5 +1,6 @@
 import pandas as pd
 import keras
+from sklearn.preprocessing import StandardScaler
 
 
 # Creates and compiles a linear regression model
@@ -39,7 +40,7 @@ def model_info(feature_names, label_name, model_output):
 
     for index, feature in enumerate(feature_names):
         info += "Weight for feature[{}]: {:.3f}\n".format(feature, weights[index][0])
-        equation += "{:.3f}\n".format(bias[0])
+        equation += "{:.3f} * {} + ".format(weights[index][0], feature)
 
     info += "Bias: {:.3f}\n".format(bias[0])
     equation += "{:.3f}\n".format(bias[0])
@@ -47,12 +48,18 @@ def model_info(feature_names, label_name, model_output):
     return banner + nl + info + nl + equation
 
 
+def get_standardized_features(features):
+    scaler = StandardScaler()
+    return scaler.fit_transform(features)
+
+
 # Core of the model: all functions are called from here
-def run_experiment(df, feature_names, label_name, learning_rate, epochs, batch_size):
+def run_training(df, feature_names, label_name, learning_rate, epochs, batch_size):
     print("INFO: start training the model with features={} and label={}\n".format(feature_names, label_name))
     num_features = len(feature_names)
     model = build_model(learning_rate, num_features)
     features = df.loc[:, feature_names].values
+    features = get_standardized_features(features)
     label = df[label_name].values
     model_result = train_model(model, features, label, epochs, batch_size)
 
